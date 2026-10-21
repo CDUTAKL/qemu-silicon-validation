@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>QEMU 虚拟板卡硅后验证 · 总报告</title>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB",
+         "Microsoft YaHei", sans-serif; margin: 0; background: #f5f6f8; color: #222; }
+  header { background: #1f3a5f; color: #fff; padding: 28px 36px; }
+  header h1 { margin: 0 0 6px; font-size: 22px; }
+  header p { margin: 0; opacity: .8; font-size: 13px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+  h2 { font-size: 17px; margin: 28px 0 12px; border-left: 4px solid #2563eb;
+       padding-left: 10px; }
+  h3 { font-size: 14px; margin: 16px 0 8px; color: #374151; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 12px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px 16px;
+          box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+  .card-label { font-size: 12px; color: #6b7280; }
+  .card-value { font-size: 24px; font-weight: 600; margin: 6px 0 4px;
+                color: #1f3a5f; word-break: break-all; }
+  .card-sub { font-size: 11px; color: #9ca3af; }
+  .missing { background: #fff; border-radius: 10px; padding: 14px 16px;
+             box-shadow: 0 1px 3px rgba(0,0,0,.07); color: #9ca3af;
+             font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; background: #fff;
+          font-size: 13px; border-radius: 10px; overflow: hidden;
+          box-shadow: 0 1px 3px rgba(0,0,0,.07); margin-bottom: 12px; }
+  th, td { border: 1px solid #e5e7eb; padding: 7px 10px; text-align: left; }
+  th { background: #f3f4f6; }
+  .pass { color: #15803d; font-weight: 600; }
+  .fail { color: #b91c1c; font-weight: 600; }
+  .skip { color: #9ca3af; }
+  .regr { color: #b91c1c; font-weight: 600; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: 12px; }
+  footer { max-width: 1100px; margin: 0 auto; padding: 0 20px 36px;
+           font-size: 11px; color: #9ca3af; line-height: 1.7; }
+</style>
+</head>
+<body>
+<header>
+  <h1>QEMU 虚拟板卡硅后验证 · 总报告</h1>
+  <p>stm32vldiscovery（Cortex-M3）× FreeRTOS 四任务固件 ｜ 生成时间 2026-10-21 22:23
+     ｜ 固定种子可复现 ｜ 虚拟平台演练（非真实硅片）</p>
+</header>
+<main>
+  <h2>概览仪表盘</h2>
+  <div class="grid"><div class="card"><div class="card-label">用例通过率</div><div class="card-value">100.00%</div><div class="card-sub">34/34 通过（失败 0 错误 0 跳过 0）</div></div><div class="card"><div class="card-label">需求覆盖率（RTM）</div><div class="card-value">100.00%</div><div class="card-sub">15/15 需求有用例覆盖</div></div><div class="card"><div class="card-label">代码行覆盖率（gcov）</div><div class="card-value">95.94%</div><div class="card-sub">分支 86.76% · 449/468 行 · 目标达成</div></div><div class="card"><div class="card-label">故障注入检出率（命令级）</div><div class="card-value">100.00%</div><div class="card-sub">300 次 inject 注入</div></div></div>
+
+  <h2>用例明细</h2>
+  <p>共 34 条用例，耗时 198.8 s；pytest 原生报告见 <span class='mono'>report/pytest_report.html</span>。</p><table><tr><th>用例</th><th>结果</th><th>耗时</th><th>备注</th></tr><tr><td class="mono">tests.test_benchmark::test_tc_bm_001_boot_time</td><td class="pass">PASS</td><td>0.151 s</td><td></td></tr><tr><td class="mono">tests.test_benchmark::test_tc_bm_002_data_period</td><td class="pass">PASS</td><td>38.533 s</td><td></td></tr><tr><td class="mono">tests.test_benchmark::test_tc_bm_003_command_rtt</td><td class="pass">PASS</td><td>3.432 s</td><td></td></tr><tr><td class="mono">tests.test_benchmark::test_tc_bm_004_heartbeat_period</td><td class="pass">PASS</td><td>15.106 s</td><td></td></tr><tr><td class="mono">tests.test_boot::test_tc_boot_001_boot_banner</td><td class="pass">PASS</td><td>0.067 s</td><td></td></tr><tr><td class="mono">tests.test_boot::test_tc_boot_002_first_data_frame</td><td class="pass">PASS</td><td>0.204 s</td><td></td></tr><tr><td class="mono">tests.test_boot::test_tc_boot_003_task_init_evidence</td><td class="pass">PASS</td><td>1.061 s</td><td></td></tr><tr><td class="mono">tests.test_boot::test_tc_boot_004_reset_registers</td><td class="pass">PASS</td><td>0.071 s</td><td></td></tr><tr><td class="mono">tests.test_boot::test_tc_boot_005_qmp_stop_cont</td><td class="pass">PASS</td><td>0.068 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_001_fault_ov_alert</td><td class="pass">PASS</td><td>2.067 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_002_fault_oc_alert</td><td class="pass">PASS</td><td>2.084 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_003_alert_response_time</td><td class="pass">PASS</td><td>7.303 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_004_disconn_frame_gap</td><td class="pass">PASS</td><td>5.649 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_005_disconn_conn_roundtrip</td><td class="pass">PASS</td><td>26.783 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_006_hang_sensor</td><td class="pass">PASS</td><td>3.970 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_007_resume_sensor</td><td class="pass">PASS</td><td>2.816 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_008_invalid_command</td><td class="pass">PASS</td><td>2.091 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_009_command_flood</td><td class="pass">PASS</td><td>2.142 s</td><td></td></tr><tr><td class="mono">tests.test_fault::test_tc_flt_010_combined_faults</td><td class="pass">PASS</td><td>3.995 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_001_frame_format</td><td class="pass">PASS</td><td>5.071 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_002_seq_continuity</td><td class="pass">PASS</td><td>30.093 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_003_data_period</td><td class="pass">PASS</td><td>10.084 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_004_heartbeat_period</td><td class="pass">PASS</td><td>6.090 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_005_stat_fields</td><td class="pass">PASS</td><td>1.371 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_006_stat_idempotent</td><td class="pass">PASS</td><td>1.114 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_007_ack_link</td><td class="pass">PASS</td><td>1.105 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_008_alert_frame</td><td class="pass">PASS</td><td>1.143 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_009_heartbeat_fields</td><td class="pass">PASS</td><td>1.364 s</td><td></td></tr><tr><td class="mono">tests.test_functional::test_tc_func_010_data_bounded_continuity</td><td class="pass">PASS</td><td>10.087 s</td><td></td></tr><tr><td class="mono">tests.test_recovery::test_tc_rcv_001_qmp_system_reset_reboot</td><td class="pass">PASS</td><td>0.091 s</td><td></td></tr><tr><td class="mono">tests.test_recovery::test_tc_rcv_002_reset_command_reboot</td><td class="pass">PASS</td><td>1.082 s</td><td></td></tr><tr><td class="mono">tests.test_recovery::test_tc_rcv_003_watchdog_reset</td><td class="pass">PASS</td><td>3.994 s</td><td></td></tr><tr><td class="mono">tests.test_recovery::test_tc_rcv_004_qmp_freeze_resume</td><td class="pass">PASS</td><td>7.664 s</td><td></td></tr><tr><td class="mono">tests.test_recovery::test_tc_rcv_005_reset_loop_stability</td><td class="pass">PASS</td><td>0.742 s</td><td></td></tr></table>
+
+  <h2>告警响应时间分位</h2>
+  <p>用例 TC-FLT-003 · 故障类型 OV · 判定准则：p95 &lt; 500ms。UART 命令级注入 → ALERT 帧返回的端到端响应时间分位。</p><table><tr><th>统计量</th><th>数值</th></tr><tr><td>样本数 n</td><td>50.00 ms</td></tr><tr><td>最小 min</td><td>23.99 ms</td></tr><tr><td>均值 mean</td><td>124.01 ms</td></tr><tr><td>P50</td><td>123.13 ms</td></tr><tr><td>P95</td><td>142.08 ms</td></tr><tr><td>P99</td><td>147.33 ms</td></tr><tr><td>最大 max</td><td>150.03 ms</td></tr></table>
+
+  <h2>故障注入统计</h2>
+  <p>三档注入：UART 命令级 / QMP 平台级 / TCG 插件比特级。</p><h3>命令级（UART inject 命令，业务语义注入）</h3><table><tr><th>字段</th><th>值</th></tr><tr><td class='mono'>注入次数</td><td>300</td></tr><tr><td class='mono'>检出率</td><td>100.00%</td></tr></table><table><tr><th>故障种类</th><th>注入次数</th><th>检出次数</th></tr><tr><td class='mono'>OV</td><td>100</td><td>100</td></tr><tr><td class='mono'>OC</td><td>100</td><td>100</td></tr><tr><td class='mono'>DISCONN</td><td>100</td><td>100</td></tr></table><h3>平台级（QMP 平台事件：power_cycle / freeze）</h3><table><tr><th>字段</th><th>值</th></tr><tr><td class='mono'>注入次数</td><td>200</td></tr><tr><td class='mono'>恢复率</td><td>100.00%</td></tr></table><table><tr><th>故障种类</th><th>注入次数</th><th>恢复次数</th></tr><tr><td class='mono'>power_cycle</td><td>100</td><td>100</td></tr><tr><td class='mono'>freeze</td><td>100</td><td>100</td></tr></table><h3>比特级（TCG 插件比特翻转，软错误/SEU 风格）</h3><table><tr><th>字段</th><th>值</th></tr><tr><td class='mono'>翻转概率 rate</td><td>0.001</td></tr><tr><td class='mono'>目标翻转数</td><td>10000</td></tr><tr><td class='mono'>实际翻转数</td><td>214</td></tr><tr><td class='mono'>运行窗口</td><td>180.6 s</td></tr><tr><td class='mono'>启动轮次 / 失能次数</td><td>16 / 15</td></tr><tr><td class='mono'>MTBF</td><td>8.25 s</td></tr><tr><td class='mono'>帧统计（解析/坏帧/丢帧）</td><td>37 / 0 / 0</td></tr></table>
+
+  <h2>代码覆盖率明细（gcov · POSIX port 双轨）</h2>
+  <p>firmware/protocol + firmware/Core via FreeRTOS POSIX port on macOS (host build)；HTML 明细见 <span class='mono'>report/coverage_html/index.html</span>。</p><table><tr><th>文件</th><th>行覆盖</th><th>分支覆盖</th></tr><tr><td class='mono'>firmware/Core/app.c</td><td>60/72（83.33%）</td><td>23/34（67.65%）</td></tr><tr><td class='mono'>firmware/Core/comm_task.c</td><td>6/6（100.00%）</td><td>1/2（50.00%）</td></tr><tr><td class='mono'>firmware/Core/diag_task.c</td><td>181/188（96.28%）</td><td>89/106（83.96%）</td></tr><tr><td class='mono'>firmware/Core/minilib.c</td><td>84/84（100.00%）</td><td>38/38（100.00%）</td></tr><tr><td class='mono'>firmware/Core/minilib.h</td><td>22/22（100.00%）</td><td>16/16（100.00%）</td></tr><tr><td class='mono'>firmware/Core/sensor_task.c</td><td>59/59（100.00%）</td><td>10/10（100.00%）</td></tr><tr><td class='mono'>firmware/Core/watchdog_task.c</td><td>3/3（100.00%）</td><td>0/0（100.00%）</td></tr><tr><td class='mono'>firmware/protocol/crc16.c</td><td>9/9（100.00%）</td><td>6/6（100.00%）</td></tr><tr><td class='mono'>firmware/protocol/frame.c</td><td>25/25（100.00%）</td><td>7/7（100.00%）</td></tr></table>
+
+  <h2>基准趋势（最近两次运行对比）</h2>
+  <p>历史 8 次运行（benchmark_history.jsonl）；对比基线 <span class='mono'>20261021T131353Z-c80802</span> → 本次 <span class='mono'>20261021T141207Z-fe3463</span>（2026-10-21T14:13:04.700581+00:00）。口径：P50 相对退化 &gt; +20% 标红（与 tests/benchmark_compare.py 一致）；本次退化 0 项。</p><table><tr><th>用例</th><th>指标</th><th>本次 P50</th><th>上次 P50</th><th>变化</th></tr><tr><td class='mono'>TC-BM-001</td><td class='mono'>boot_time_ms</td><td>0.7911</td><td>0.7786</td><td>+1.6%</td></tr><tr><td class='mono'>TC-BM-002</td><td class='mono'>data_period_ms</td><td>123.4</td><td>122.6</td><td>+0.7%</td></tr><tr><td class='mono'>TC-BM-003</td><td class='mono'>cmd_rtt_ms</td><td>23.87</td><td>24.03</td><td>-0.7%</td></tr><tr><td class='mono'>TC-BM-004</td><td class='mono'>heartbeat_period_ms</td><td>1271</td><td>1261</td><td>+0.8%</td></tr></table>
+
+  <h2>RTM 需求追踪矩阵摘要</h2>
+  <p>需求 15/15 覆盖 · 用例追踪 34 条 · 通过 34 条 · 缺口：无（全文见 <span class='mono'>report/rtm.md</span>）。</p><table><tr><th>需求</th><th>标题</th><th>关联用例</th><th>状态</th></tr><tr><td class='mono'>FR-01</td><td>周期数据上报</td><td class='mono'>TC-BOOT-002, TC-FUNC-001, TC-FUNC-003, TC-FUNC-010</td><td class='pass'>已覆盖（PASSED×4）</td></tr><tr><td class='mono'>FR-02</td><td>帧序号连续性</td><td class='mono'>TC-FUNC-002</td><td class='pass'>已覆盖（PASSED×1）</td></tr><tr><td class='mono'>FR-03</td><td>心跳机制</td><td class='mono'>TC-FUNC-004, TC-FUNC-009</td><td class='pass'>已覆盖（PASSED×2）</td></tr><tr><td class='mono'>FR-04</td><td>ACK 请求响应</td><td class='mono'>TC-FUNC-007</td><td class='pass'>已覆盖（PASSED×1）</td></tr><tr><td class='mono'>FR-05</td><td>诊断命令</td><td class='mono'>TC-BOOT-003, TC-FUNC-005, TC-FUNC-006</td><td class='pass'>已覆盖（PASSED×3）</td></tr><tr><td class='mono'>FR-06</td><td>故障告警</td><td class='mono'>TC-FLT-001, TC-FLT-002, TC-FLT-003, TC-FLT-010, TC-FUNC-008</td><td class='pass'>已覆盖（PASSED×5）</td></tr><tr><td class='mono'>FR-07</td><td>断线检测与恢复</td><td class='mono'>TC-FLT-004, TC-FLT-005, TC-FLT-010</td><td class='pass'>已覆盖（PASSED×3）</td></tr><tr><td class='mono'>FR-08</td><td>任务挂起/恢复</td><td class='mono'>TC-FLT-006, TC-FLT-007</td><td class='pass'>已覆盖（PASSED×2）</td></tr><tr><td class='mono'>FR-09</td><td>看门狗复位</td><td class='mono'>TC-RCV-003</td><td class='pass'>已覆盖（PASSED×1）</td></tr><tr><td class='mono'>NFR-01</td><td>复位自举</td><td class='mono'>TC-BOOT-001, TC-RCV-001, TC-RCV-002, TC-RCV-005</td><td class='pass'>已覆盖（PASSED×4）</td></tr><tr><td class='mono'>NFR-02</td><td>寄存器现场合法</td><td class='mono'>TC-BOOT-004</td><td class='pass'>已覆盖（PASSED×1）</td></tr><tr><td class='mono'>NFR-03</td><td>平台控制</td><td class='mono'>TC-BOOT-005, TC-RCV-004</td><td class='pass'>已覆盖（PASSED×2）</td></tr><tr><td class='mono'>NFR-04</td><td>时序性能</td><td class='mono'>TC-BM-002, TC-BM-003, TC-BM-004, TC-FLT-003, TC-FUNC-003</td><td class='pass'>已覆盖（PASSED×5）</td></tr><tr><td class='mono'>NFR-05</td><td>异常命令健壮性</td><td class='mono'>TC-FLT-008, TC-FLT-009</td><td class='pass'>已覆盖（PASSED×2）</td></tr><tr><td class='mono'>NFR-06</td><td>启动时间</td><td class='mono'>TC-BM-001</td><td class='pass'>已覆盖（PASSED×1）</td></tr></table>
+
+  <h2>边界声明</h2>
+  <div class="missing" style="color:#4b5563">
+    本报告全部数据来自 QEMU 虚拟板卡（stm32vldiscovery 机器模型）上的软件仿真：
+    传感器数据为固件内软件模拟，未接真实仪器与真实硅片；TCG 插件比特翻转用于
+    演示软错误注入方法学，不等价于真实硬件 SEU；性能数字（响应时间/上报周期）
+    反映虚拟平台行为，随宿主机负载漂移，用于展示验证流程与数据口径，
+    不代表物理芯片指标。
+  </div>
+</main>
+<footer>
+  诚实声明：本项目为硅后验证方法学的虚拟平台演练。QEMU 机器模型与外设时序
+  和真实 STM32F100 存在差异；gcov 覆盖率经 FreeRTOS POSIX port 双轨获得，
+  统计口径与片上运行略有出入。所有结论仅用于展示测试方案设计、用例编写、
+  故障注入与报告生成的完整闭环能力。
+</footer>
+</body>
+</html>

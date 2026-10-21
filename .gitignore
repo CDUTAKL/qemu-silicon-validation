@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+firmware/build/
+coverage/posix_build/build/
+coverage/*.gcda
+coverage/*.gcno
+report/coverage_html/
+report/benchmark_history.jsonl
+report/platform_events.json
+*.sock

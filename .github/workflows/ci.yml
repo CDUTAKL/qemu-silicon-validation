@@ -1,0 +1,108 @@
+name: nightly-regression
+
+# 硅后验证 nightly 回归：构建固件 → pytest 全量 → 基准对比 → 故障注入 → 覆盖率
+# → RTM → 总报告 → 上传 report/ 整目录。
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 2 * * *'   # 每日 02:17 UTC nightly（避开整点）
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive   # deps/freertos-kernel
+
+      - name: 兜底拉取 FreeRTOS Kernel（非 submodule 场景）
+        run: |
+          if [ ! -f deps/freertos-kernel/CMakeLists.txt ]; then
+            git clone --depth 1 https://github.com/FreeRTOS/FreeRTOS-Kernel.git \
+              deps/freertos-kernel
+          fi
+
+      - name: 安装工具链（QEMU / ARM GCC / gcc / lcov）
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-arm gcc-arm-none-eabi gcc lcov
+
+      - name: 安装 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装 Python 依赖
+        run: pip install pytest pytest-html pyserial PyYAML
+
+      - name: '[1/6] 构建固件'
+        run: bash firmware/build.sh
+
+      - name: '[2/6] pytest 全量（junit + html）'
+        run: |
+          mkdir -p report
+          python -m pytest tests/ \
+            --junitxml=report/junit.xml \
+            --html=report/pytest_report.html --self-contained-html \
+            -q --tb=short
+
+      - name: 基准趋势回归对比（P50 退化 >20% 即失败）
+        run: python tests/benchmark_compare.py
+
+      - name: '[3/6] TCG 比特翻转插件重编译（experimental）'
+        # 本地 macOS 产物 faults/bitflip/bitflip.so 是 Mach-O dylib，Linux 不可用，
+        # CI 用 cc 重编 ELF .so。qemu-plugin.h 是否随发行版包安装因版本而异，
+        # 检测不到头文件或编译失败均不阻塞 nightly（比特级阶段随之跳过）。
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y libglib2.0-dev
+          HDR=$(ls /usr/include/qemu-plugin.h /usr/include/qemu/qemu-plugin.h 2>/dev/null | head -1 || true)
+          if [ -z "$HDR" ]; then
+            echo "qemu-plugin.h 未随 qemu 包安装，跳过插件重编译（比特级注入将不可用）"
+            exit 0
+          fi
+          cc -O2 -fPIC -shared -Wall -Wextra -Wno-unused-parameter \
+            -I"$(dirname "$HDR")" $(pkg-config --cflags glib-2.0) \
+            faults/bitflip/bitflip.c -o faults/bitflip/bitflip.so \
+            $(pkg-config --libs glib-2.0)
+          file faults/bitflip/bitflip.so
+
+      - name: '[4/6] 故障注入战役（命令级 300 + 平台级 200 + 比特级）'
+        run: python faults/injection_campaign.py
+
+      - name: 覆盖率 GNU 工具链兼容路径（shim）
+        # coverage/posix_build/build.sh 与 run_coverage.sh 目前按 macOS Homebrew
+        # 路径发现 gcc-*/gcov-*；在 runner 上建立同名符号链接复用系统 gcc/gcov。
+        run: |
+          GCC_BIN=$(ls /usr/bin/gcc-* 2>/dev/null | grep -E '/gcc-[0-9]+$' | sort -V | tail -1 || true)
+          GCC_BIN=${GCC_BIN:-$(command -v gcc)}
+          VER=${GCC_BIN##*-}; [ "$VER" = "$GCC_BIN" ] && VER=13
+          sudo mkdir -p /opt/homebrew/bin
+          sudo ln -sf "$GCC_BIN" "/opt/homebrew/bin/gcc-$VER"
+          sudo ln -sf "$(command -v gcov)" "/opt/homebrew/bin/gcov-$VER"
+          ls -l /opt/homebrew/bin
+
+      - name: '[5/6] 覆盖率（gcov，FreeRTOS POSIX port 双轨）'
+        # 已知风险：ubuntu-latest 的 lcov 2.x 移除了 run_coverage.sh 使用的
+        # `--rc branch_coverage=1` 选项；coverage 层脚本目前按 macOS 调优，
+        # Linux 适配完成前本步骤容错不阻塞 nightly。
+        continue-on-error: true
+        run: bash coverage/run_coverage.sh
+
+      - name: '[6/6] RTM 合并 + 总报告'
+        run: |
+          python rtm/rtm_report.py --junit report/junit.xml \
+            --coverage report/coverage_summary.json
+          python report/final_report.py
+
+      - name: 上传报告 artifacts（report/ 整目录）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ github.run_number }}
+          path: report/
+          retention-days: 30

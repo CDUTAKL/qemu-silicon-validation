@@ -1,0 +1,165 @@
+# requirements.yaml — QEMU 虚拟板卡硅后验证框架 · 需求规格基线
+#
+# 本文件是验证活动的需求基线 (requirements baseline)：每条需求有唯一 ID，
+# 测试用例在 docstring 中引用这些 ID，rtm_report.py 据此生成需求追踪矩阵。
+# 需求文字摘自设计文档 §3.1（功能需求）与 §3.5（非功能需求），
+# 任何需求变更必须先改本文件、再补用例，保证 RTM 无缺口。
+#
+# 字段说明:
+#   id          需求唯一标识 (FR-xx 功能需求 / NFR-xx 非功能需求)
+#   title       短名称
+#   description 需求规格描述 (可验证、含量化判据)
+#   priority    must = 必须验证, 不通过则阻塞发布; should = 应当验证
+#   category    functional / non-functional
+#   source      设计文档出处章节
+
+requirements:
+
+  - id: FR-01
+    title: 周期数据上报
+    description: >-
+      被测固件应以 100 ms 标称周期通过 UART 持续上报 DATA 帧 (type=0x01)，
+      每帧携带电压、电流、温度三路 float32 采样值；实测平均周期与标称值
+      偏差不得超过 ±5%，周期抖动 (标准差) 不得超过 2 ms。
+    priority: must
+    category: functional
+    source: 设计文档 §3.1.1 遥测数据通道
+
+  - id: FR-02
+    title: 帧序号连续性
+    description: >-
+      所有出站帧 (DATA/ALERT/HEARTBEAT/ACK) 由通信任务统一加盖 16 bit 单调
+      递增序号；任一复位周期内序号不得出现缺口、重复或乱序，序号回绕
+      (0xFFFF → 0x0000) 不计为不连续。
+    priority: must
+    category: functional
+    source: 设计文档 §3.1.2 帧格式与序号域
+
+  - id: FR-03
+    title: 心跳机制
+    description: >-
+      被测固件应以 1 s 标称周期上报 HEARTBEAT 帧 (type=0x03)，载荷包含
+      四任务运行位图与堆栈高水位字节数；心跳丢失超过 3 个周期即判定
+      固件活性异常。
+    priority: must
+    category: functional
+    source: 设计文档 §3.1.3 活性监测
+
+  - id: FR-04
+    title: ACK 请求响应
+    description: >-
+      测试端发出 REQUEST 帧 (type=0x04) 后，被测固件应在规定超时内回送
+      ACK 帧 (type=0x05) 作为链路往返确认；ACK 响应时间应纳入统计并满足
+      NFR-04 的时序上界。
+    priority: must
+    category: functional
+    source: 设计文档 §3.1.4 请求/确认握手
+
+  - id: FR-05
+    title: 诊断命令
+    description: >-
+      被测固件应解析并执行测试端经 UART 下发的文本诊断命令
+      (inject/suspend/resume/fault 系列)，合法命令回显 OK、非法命令回显
+      ERR，且命令处理不得中断正常遥测数据流。
+    priority: must
+    category: functional
+    source: 设计文档 §3.1.5 诊断接口
+
+  - id: FR-06
+    title: 故障告警
+    description: >-
+      注入过压/过流等故障激励后，被测固件应检出故障并上报 ALERT 帧
+      (type=0x02)，载荷正确携带 fault_id、严重等级与故障量测值；从注入
+      到告警帧到达的响应时间应可测量并满足 NFR-04 上界。
+    priority: must
+    category: functional
+    source: 设计文档 §3.5.1 故障检测与告警
+
+  - id: FR-07
+    title: 断线检测与恢复
+    description: >-
+      数据流被人为中断 (DISCONN) 时，被测固件应检出断线并进入恢复流程；
+      链路恢复 (CONN) 后应自动重启周期上报，恢复后帧序号序列保持连续、
+      无丢帧无重复。
+    priority: must
+    category: functional
+    source: 设计文档 §3.5.2 链路异常处理
+
+  - id: FR-08
+    title: 任务挂起/恢复
+    description: >-
+      被测固件应支持经诊断命令挂起 (suspend) 与恢复 (resume) 指定应用
+      任务；挂起期间心跳任务位图相应位清零，恢复后该任务重新开始计时/
+      上报，其余任务行为不受影响。
+    priority: should
+    category: functional
+    source: 设计文档 §3.5.3 任务生命周期管理
+
+  - id: FR-09
+    title: 看门狗复位
+    description: >-
+      独立看门狗由守护任务每 500 ms 喂狗；当守护任务停止喂狗 (模拟死锁/
+      跑飞) 超过 1 s 时，看门狗应触发芯片级复位，复位后固件重新完成
+      自举并恢复周期上报。
+    priority: must
+    category: functional
+    source: 设计文档 §3.5.4 看门狗监控
+
+  - id: NFR-01
+    title: 复位自举
+    description: >-
+      被测固件从上电或 system_reset 复位释放后，应无人工干预完成自举：
+      初始化硬件抽象层、创建四个应用任务、输出启动横幅并开始周期上报，
+      全过程不得出现 Lockup 或异常退出。
+    priority: must
+    category: non-functional
+    source: 设计文档 §3.1.6 启动流程
+
+  - id: NFR-02
+    title: 寄存器现场合法
+    description: >-
+      平台暂停 (QMP stop) 后读取的 CPU 寄存器现场应合法：PC 落在固件
+      .text 段地址范围内，SP 落在 SRAM 有效区间，xPSR 标志位组合合法；
+      stop/cont 往返后程序继续正常执行。
+    priority: must
+    category: non-functional
+    source: 设计文档 §3.5.5 调试可见性
+
+  - id: NFR-03
+    title: 平台控制
+    description: >-
+      验证平台应支持通过 QMP 对虚拟机执行 stop/cont/system_reset 控制
+      原语，命令响应正确、状态机迁移可观测 (STOP/RESUME/RESET 事件)，
+      复位后固件行为与上电自举一致。
+    priority: must
+    category: non-functional
+    source: 设计文档 §3.5.6 仿真平台控制接口
+
+  - id: NFR-04
+    title: 时序性能
+    description: >-
+      端到端时序指标应量化并满足上界：故障注入到 ALERT 帧到达的响应
+      时间 p95 ≤ 200 ms，REQUEST→ACK 往返时间 p95 ≤ 100 ms，周期上报
+      抖动满足 FR-01 判据。
+    priority: should
+    category: non-functional
+    source: 设计文档 §3.5.7 实时性指标
+
+  - id: NFR-05
+    title: 异常命令健壮性
+    description: >-
+      对畸形帧 (坏 CRC、未知 type、截断帧) 与非法诊断命令，被测固件应
+      拒绝并回显 ERR、计入坏帧统计，不得复位、挂死或中断遥测数据流。
+    priority: should
+    category: non-functional
+    source: 设计文档 §3.5.8 健壮性要求
+
+  - id: NFR-06
+    title: 启动时间
+    description: >-
+      从复位释放到启动横幅出现、首帧 DATA 上报的启动时间应可测量，
+      在虚拟平台上应 ≤ 2 s；该指标作为真实硅后上电时序验证的方法学
+      预演。
+    priority: should
+    category: non-functional
+    source: 设计文档 §3.5.9 启动时序

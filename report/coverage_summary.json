@@ -1,0 +1,137 @@
+{
+  "generated_at": "2026-10-21T14:23:55.258904+00:00",
+  "tool": "gcc --coverage (gcov format) + lcov",
+  "scope": "firmware/protocol + firmware/Core via FreeRTOS POSIX port on macOS (host build)",
+  "targets": {
+    "line_pct": 85.0,
+    "branch_pct": 75.0,
+    "met": true
+  },
+  "totals": {
+    "percent_covered": 95.94,
+    "covered_lines": 449,
+    "num_statements": 468,
+    "branch_percent": 86.76,
+    "covered_branches": 190,
+    "num_branches": 219
+  },
+  "files": [
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/Core/app.c",
+      "lines": {
+        "covered": 60,
+        "total": 72,
+        "percent": 83.33
+      },
+      "branches": {
+        "covered": 23,
+        "total": 34,
+        "percent": 67.65
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/Core/comm_task.c",
+      "lines": {
+        "covered": 6,
+        "total": 6,
+        "percent": 100.0
+      },
+      "branches": {
+        "covered": 1,
+        "total": 2,
+        "percent": 50.0
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/Core/diag_task.c",
+      "lines": {
+        "covered": 181,
+        "total": 188,
+        "percent": 96.28
+      },
+      "branches": {
+        "covered": 89,
+        "total": 106,
+        "percent": 83.96
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/Core/minilib.c",
+      "lines": {
+        "covered": 84,
+        "total": 84,
+        "percent": 100.0
+      },
+      "branches": {
+        "covered": 38,
+        "total": 38,
+        "percent": 100.0
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/Core/minilib.h",
+      "lines": {
+        "covered": 22,
+        "total": 22,
+        "percent": 100.0
+      },
+      "branches": {
+        "covered": 16,
+        "total": 16,
+        "percent": 100.0
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/Core/sensor_task.c",
+      "lines": {
+        "covered": 59,
+        "total": 59,
+        "percent": 100.0
+      },
+      "branches": {
+        "covered": 10,
+        "total": 10,
+        "percent": 100.0
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/Core/watchdog_task.c",
+      "lines": {
+        "covered": 3,
+        "total": 3,
+        "percent": 100.0
+      },
+      "branches": {
+        "covered": 0,
+        "total": 0,
+        "percent": 100.0
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/protocol/crc16.c",
+      "lines": {
+        "covered": 9,
+        "total": 9,
+        "percent": 100.0
+      },
+      "branches": {
+        "covered": 6,
+        "total": 6,
+        "percent": 100.0
+      }
+    },
+    {
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/protocol/frame.c",
+      "lines": {
+        "covered": 25,
+        "total": 25,
+        "percent": 100.0
+      },
+      "branches": {
+        "covered": 7,
+        "total": 7,
+        "percent": 100.0
+      }
+    }
+  ]
+}

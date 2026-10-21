@@ -1,0 +1,668 @@
+{
+  "generated_at": "2026-10-21T14:23:55.432530+00:00",
+  "statistics": {
+    "requirements_total": 15,
+    "requirements_covered": 15,
+    "requirement_coverage_pct": 100.0,
+    "gaps": [],
+    "testcases_traced": 34,
+    "testcases_executed": 34,
+    "testcases_passed": 34,
+    "testcase_pass_rate_pct": 100.0,
+    "junit_loaded": true,
+    "by_group": {
+      "BOOT": {
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "not_run": 0
+      },
+      "FUNC": {
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "not_run": 0
+      },
+      "FLT": {
+        "total": 10,
+        "passed": 10,
+        "failed": 0,
+        "not_run": 0
+      },
+      "RCV": {
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "not_run": 0
+      },
+      "BM": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "not_run": 0
+      }
+    }
+  },
+  "requirements": [
+    {
+      "id": "FR-01",
+      "title": "周期数据上报",
+      "description": "被测固件应以 100 ms 标称周期通过 UART 持续上报 DATA 帧 (type=0x01)， 每帧携带电压、电流、温度三路 float32 采样值；实测平均周期与标称值 偏差不得超过 ±5%，周期抖动 (标准差) 不得超过 2 ms。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.1.1 遥测数据通道",
+      "covered": true,
+      "testcases": [
+        "TC-BOOT-002",
+        "TC-FUNC-001",
+        "TC-FUNC-003",
+        "TC-FUNC-010"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED",
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-02",
+      "title": "帧序号连续性",
+      "description": "所有出站帧 (DATA/ALERT/HEARTBEAT/ACK) 由通信任务统一加盖 16 bit 单调 递增序号；任一复位周期内序号不得出现缺口、重复或乱序，序号回绕 (0xFFFF → 0x0000) 不计为不连续。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.1.2 帧格式与序号域",
+      "covered": true,
+      "testcases": [
+        "TC-FUNC-002"
+      ],
+      "outcomes": [
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-03",
+      "title": "心跳机制",
+      "description": "被测固件应以 1 s 标称周期上报 HEARTBEAT 帧 (type=0x03)，载荷包含 四任务运行位图与堆栈高水位字节数；心跳丢失超过 3 个周期即判定 固件活性异常。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.1.3 活性监测",
+      "covered": true,
+      "testcases": [
+        "TC-FUNC-004",
+        "TC-FUNC-009"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-04",
+      "title": "ACK 请求响应",
+      "description": "测试端发出 REQUEST 帧 (type=0x04) 后，被测固件应在规定超时内回送 ACK 帧 (type=0x05) 作为链路往返确认；ACK 响应时间应纳入统计并满足 NFR-04 的时序上界。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.1.4 请求/确认握手",
+      "covered": true,
+      "testcases": [
+        "TC-FUNC-007"
+      ],
+      "outcomes": [
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-05",
+      "title": "诊断命令",
+      "description": "被测固件应解析并执行测试端经 UART 下发的文本诊断命令 (inject/suspend/resume/fault 系列)，合法命令回显 OK、非法命令回显 ERR，且命令处理不得中断正常遥测数据流。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.1.5 诊断接口",
+      "covered": true,
+      "testcases": [
+        "TC-BOOT-003",
+        "TC-FUNC-005",
+        "TC-FUNC-006"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-06",
+      "title": "故障告警",
+      "description": "注入过压/过流等故障激励后，被测固件应检出故障并上报 ALERT 帧 (type=0x02)，载荷正确携带 fault_id、严重等级与故障量测值；从注入 到告警帧到达的响应时间应可测量并满足 NFR-04 上界。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.5.1 故障检测与告警",
+      "covered": true,
+      "testcases": [
+        "TC-FLT-001",
+        "TC-FLT-002",
+        "TC-FLT-003",
+        "TC-FLT-010",
+        "TC-FUNC-008"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED",
+        "PASSED",
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-07",
+      "title": "断线检测与恢复",
+      "description": "数据流被人为中断 (DISCONN) 时，被测固件应检出断线并进入恢复流程； 链路恢复 (CONN) 后应自动重启周期上报，恢复后帧序号序列保持连续、 无丢帧无重复。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.5.2 链路异常处理",
+      "covered": true,
+      "testcases": [
+        "TC-FLT-004",
+        "TC-FLT-005",
+        "TC-FLT-010"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-08",
+      "title": "任务挂起/恢复",
+      "description": "被测固件应支持经诊断命令挂起 (suspend) 与恢复 (resume) 指定应用 任务；挂起期间心跳任务位图相应位清零，恢复后该任务重新开始计时/ 上报，其余任务行为不受影响。",
+      "priority": "should",
+      "category": "functional",
+      "source": "设计文档 §3.5.3 任务生命周期管理",
+      "covered": true,
+      "testcases": [
+        "TC-FLT-006",
+        "TC-FLT-007"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "FR-09",
+      "title": "看门狗复位",
+      "description": "独立看门狗由守护任务每 500 ms 喂狗；当守护任务停止喂狗 (模拟死锁/ 跑飞) 超过 1 s 时，看门狗应触发芯片级复位，复位后固件重新完成 自举并恢复周期上报。",
+      "priority": "must",
+      "category": "functional",
+      "source": "设计文档 §3.5.4 看门狗监控",
+      "covered": true,
+      "testcases": [
+        "TC-RCV-003"
+      ],
+      "outcomes": [
+        "PASSED"
+      ]
+    },
+    {
+      "id": "NFR-01",
+      "title": "复位自举",
+      "description": "被测固件从上电或 system_reset 复位释放后，应无人工干预完成自举： 初始化硬件抽象层、创建四个应用任务、输出启动横幅并开始周期上报， 全过程不得出现 Lockup 或异常退出。",
+      "priority": "must",
+      "category": "non-functional",
+      "source": "设计文档 §3.1.6 启动流程",
+      "covered": true,
+      "testcases": [
+        "TC-BOOT-001",
+        "TC-RCV-001",
+        "TC-RCV-002",
+        "TC-RCV-005"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED",
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "NFR-02",
+      "title": "寄存器现场合法",
+      "description": "平台暂停 (QMP stop) 后读取的 CPU 寄存器现场应合法：PC 落在固件 .text 段地址范围内，SP 落在 SRAM 有效区间，xPSR 标志位组合合法； stop/cont 往返后程序继续正常执行。",
+      "priority": "must",
+      "category": "non-functional",
+      "source": "设计文档 §3.5.5 调试可见性",
+      "covered": true,
+      "testcases": [
+        "TC-BOOT-004"
+      ],
+      "outcomes": [
+        "PASSED"
+      ]
+    },
+    {
+      "id": "NFR-03",
+      "title": "平台控制",
+      "description": "验证平台应支持通过 QMP 对虚拟机执行 stop/cont/system_reset 控制 原语，命令响应正确、状态机迁移可观测 (STOP/RESUME/RESET 事件)， 复位后固件行为与上电自举一致。",
+      "priority": "must",
+      "category": "non-functional",
+      "source": "设计文档 §3.5.6 仿真平台控制接口",
+      "covered": true,
+      "testcases": [
+        "TC-BOOT-005",
+        "TC-RCV-004"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "NFR-04",
+      "title": "时序性能",
+      "description": "端到端时序指标应量化并满足上界：故障注入到 ALERT 帧到达的响应 时间 p95 ≤ 200 ms，REQUEST→ACK 往返时间 p95 ≤ 100 ms，周期上报 抖动满足 FR-01 判据。",
+      "priority": "should",
+      "category": "non-functional",
+      "source": "设计文档 §3.5.7 实时性指标",
+      "covered": true,
+      "testcases": [
+        "TC-BM-002",
+        "TC-BM-003",
+        "TC-BM-004",
+        "TC-FLT-003",
+        "TC-FUNC-003"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED",
+        "PASSED",
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "NFR-05",
+      "title": "异常命令健壮性",
+      "description": "对畸形帧 (坏 CRC、未知 type、截断帧) 与非法诊断命令，被测固件应 拒绝并回显 ERR、计入坏帧统计，不得复位、挂死或中断遥测数据流。",
+      "priority": "should",
+      "category": "non-functional",
+      "source": "设计文档 §3.5.8 健壮性要求",
+      "covered": true,
+      "testcases": [
+        "TC-FLT-008",
+        "TC-FLT-009"
+      ],
+      "outcomes": [
+        "PASSED",
+        "PASSED"
+      ]
+    },
+    {
+      "id": "NFR-06",
+      "title": "启动时间",
+      "description": "从复位释放到启动横幅出现、首帧 DATA 上报的启动时间应可测量， 在虚拟平台上应 ≤ 2 s；该指标作为真实硅后上电时序验证的方法学 预演。",
+      "priority": "should",
+      "category": "non-functional",
+      "source": "设计文档 §3.5.9 启动时序",
+      "covered": true,
+      "testcases": [
+        "TC-BM-001"
+      ],
+      "outcomes": [
+        "PASSED"
+      ]
+    }
+  ],
+  "testcases": [
+    {
+      "tc_id": "TC-BM-001",
+      "function": "test_tc_bm_001_boot_time",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_benchmark.py",
+      "requirements": [
+        "NFR-06"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 0.151
+    },
+    {
+      "tc_id": "TC-BM-002",
+      "function": "test_tc_bm_002_data_period",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_benchmark.py",
+      "requirements": [
+        "NFR-04"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 38.533
+    },
+    {
+      "tc_id": "TC-BM-003",
+      "function": "test_tc_bm_003_command_rtt",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_benchmark.py",
+      "requirements": [
+        "NFR-04"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 3.432
+    },
+    {
+      "tc_id": "TC-BM-004",
+      "function": "test_tc_bm_004_heartbeat_period",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_benchmark.py",
+      "requirements": [
+        "NFR-04"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 15.106
+    },
+    {
+      "tc_id": "TC-BOOT-001",
+      "function": "test_tc_boot_001_boot_banner",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_boot.py",
+      "requirements": [
+        "NFR-01"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 0.067
+    },
+    {
+      "tc_id": "TC-BOOT-002",
+      "function": "test_tc_boot_002_first_data_frame",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_boot.py",
+      "requirements": [
+        "FR-01"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 0.204
+    },
+    {
+      "tc_id": "TC-BOOT-003",
+      "function": "test_tc_boot_003_task_init_evidence",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_boot.py",
+      "requirements": [
+        "FR-05"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 1.061
+    },
+    {
+      "tc_id": "TC-BOOT-004",
+      "function": "test_tc_boot_004_reset_registers",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_boot.py",
+      "requirements": [
+        "NFR-02"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 0.071
+    },
+    {
+      "tc_id": "TC-BOOT-005",
+      "function": "test_tc_boot_005_qmp_stop_cont",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_boot.py",
+      "requirements": [
+        "NFR-03"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 0.068
+    },
+    {
+      "tc_id": "TC-FLT-001",
+      "function": "test_tc_flt_001_fault_ov_alert",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-06"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 2.067
+    },
+    {
+      "tc_id": "TC-FLT-002",
+      "function": "test_tc_flt_002_fault_oc_alert",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-06"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 2.084
+    },
+    {
+      "tc_id": "TC-FLT-003",
+      "function": "test_tc_flt_003_alert_response_time",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-06",
+        "NFR-04"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 7.303
+    },
+    {
+      "tc_id": "TC-FLT-004",
+      "function": "test_tc_flt_004_disconn_frame_gap",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-07"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 5.649
+    },
+    {
+      "tc_id": "TC-FLT-005",
+      "function": "test_tc_flt_005_disconn_conn_roundtrip",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-07"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 26.783
+    },
+    {
+      "tc_id": "TC-FLT-006",
+      "function": "test_tc_flt_006_hang_sensor",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-08"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 3.97
+    },
+    {
+      "tc_id": "TC-FLT-007",
+      "function": "test_tc_flt_007_resume_sensor",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-08"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 2.816
+    },
+    {
+      "tc_id": "TC-FLT-008",
+      "function": "test_tc_flt_008_invalid_command",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "NFR-05"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 2.091
+    },
+    {
+      "tc_id": "TC-FLT-009",
+      "function": "test_tc_flt_009_command_flood",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "NFR-05"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 2.142
+    },
+    {
+      "tc_id": "TC-FLT-010",
+      "function": "test_tc_flt_010_combined_faults",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_fault.py",
+      "requirements": [
+        "FR-06",
+        "FR-07"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 3.995
+    },
+    {
+      "tc_id": "TC-FUNC-001",
+      "function": "test_tc_func_001_frame_format",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-01"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 5.071
+    },
+    {
+      "tc_id": "TC-FUNC-002",
+      "function": "test_tc_func_002_seq_continuity",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-02"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 30.093
+    },
+    {
+      "tc_id": "TC-FUNC-003",
+      "function": "test_tc_func_003_data_period",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-01",
+        "NFR-04"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 10.084
+    },
+    {
+      "tc_id": "TC-FUNC-004",
+      "function": "test_tc_func_004_heartbeat_period",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-03"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 6.09
+    },
+    {
+      "tc_id": "TC-FUNC-005",
+      "function": "test_tc_func_005_stat_fields",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-05"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 1.371
+    },
+    {
+      "tc_id": "TC-FUNC-006",
+      "function": "test_tc_func_006_stat_idempotent",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-05"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 1.114
+    },
+    {
+      "tc_id": "TC-FUNC-007",
+      "function": "test_tc_func_007_ack_link",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-04"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 1.105
+    },
+    {
+      "tc_id": "TC-FUNC-008",
+      "function": "test_tc_func_008_alert_frame",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-06"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 1.143
+    },
+    {
+      "tc_id": "TC-FUNC-009",
+      "function": "test_tc_func_009_heartbeat_fields",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-03"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 1.364
+    },
+    {
+      "tc_id": "TC-FUNC-010",
+      "function": "test_tc_func_010_data_bounded_continuity",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_functional.py",
+      "requirements": [
+        "FR-01"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 10.087
+    },
+    {
+      "tc_id": "TC-RCV-001",
+      "function": "test_tc_rcv_001_qmp_system_reset_reboot",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_recovery.py",
+      "requirements": [
+        "NFR-01"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 0.091
+    },
+    {
+      "tc_id": "TC-RCV-002",
+      "function": "test_tc_rcv_002_reset_command_reboot",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_recovery.py",
+      "requirements": [
+        "NFR-01"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 1.082
+    },
+    {
+      "tc_id": "TC-RCV-003",
+      "function": "test_tc_rcv_003_watchdog_reset",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_recovery.py",
+      "requirements": [
+        "FR-09"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 3.994
+    },
+    {
+      "tc_id": "TC-RCV-004",
+      "function": "test_tc_rcv_004_qmp_freeze_resume",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_recovery.py",
+      "requirements": [
+        "NFR-03"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 7.664
+    },
+    {
+      "tc_id": "TC-RCV-005",
+      "function": "test_tc_rcv_005_reset_loop_stability",
+      "file": "/Users/xushuyuan/Documents/qemu-silicon-validation/tests/test_recovery.py",
+      "requirements": [
+        "NFR-01"
+      ],
+      "outcome": "PASSED",
+      "duration_s": 0.742
+    }
+  ],
+  "coverage": {
+    "format": "coverage.py",
+    "percent_covered": 95.94,
+    "covered_lines": 449,
+    "num_statements": 468
+  }
+}

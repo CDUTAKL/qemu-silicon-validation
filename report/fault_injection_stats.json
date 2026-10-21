@@ -1,0 +1,204 @@
+{
+  "generated_at": "2026-10-21T14:15:26.406513+00:00",
+  "kernel": "/Users/xushuyuan/Documents/qemu-silicon-validation/firmware/build/firmware.elf",
+  "levels": {
+    "command_level": {
+      "iterations": 300,
+      "per_kind": {
+        "OV": {
+          "count": 100,
+          "detected": 100
+        },
+        "OC": {
+          "count": 100,
+          "detected": 100
+        },
+        "DISCONN": {
+          "count": 100,
+          "detected": 100,
+          "hb_observed": 139
+        }
+      },
+      "overall_detection_rate": 1.0,
+      "failure_samples": []
+    },
+    "platform_level": {
+      "iterations": 200,
+      "per_kind": {
+        "power_cycle": {
+          "count": 100,
+          "recovered": 100
+        },
+        "freeze": {
+          "count": 100,
+          "recovered": 100
+        }
+      },
+      "overall_recovery_rate": 1.0,
+      "event_summary": {
+        "power_cycle": {
+          "count": 100,
+          "ok": 100,
+          "fail": 0,
+          "unknown": 0
+        },
+        "freeze": {
+          "count": 100,
+          "ok": 100,
+          "fail": 0,
+          "unknown": 0
+        }
+      },
+      "failure_samples": []
+    },
+    "bit_level": {
+      "rate": 0.001,
+      "target_flips": 10000,
+      "duration_s": 180.6,
+      "boots": 16,
+      "deaths": 15,
+      "mtbf_s": 8.25,
+      "plugin_accesses_in_window": 226082,
+      "plugin_flips_total": 214,
+      "frame_stats_total": {
+        "frames_parsed": 37,
+        "bad_frames": 0,
+        "lost_frames": 0,
+        "duplicate_frames": 0,
+        "garbage_bytes": 4242
+      },
+      "boot_log": [
+        {
+          "boot": 1,
+          "survival_s": 8.2,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 2,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 2,
+          "survival_s": 8.17,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 0,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 3,
+          "survival_s": 8.14,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 2,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 4,
+          "survival_s": 8.17,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 0,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 5,
+          "survival_s": 8.16,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 0,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 6,
+          "survival_s": 8.18,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 3,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 7,
+          "survival_s": 8.15,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 0,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 8,
+          "survival_s": 8.15,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 6,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 9,
+          "survival_s": 8.18,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 5,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 10,
+          "survival_s": 8.17,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 0,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 11,
+          "survival_s": 9.4,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 10,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 12,
+          "survival_s": 8.2,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 4,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 13,
+          "survival_s": 8.16,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 0,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 14,
+          "survival_s": 8.2,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 2,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 15,
+          "survival_s": 8.16,
+          "death_cause": "firmware_unresponsive (STAT? x3 timeout)",
+          "frames_parsed": 3,
+          "bad_frames": 0,
+          "lost_frames": 0
+        },
+        {
+          "boot": 16,
+          "survival_s": 5.46,
+          "death_cause": null,
+          "frames_parsed": 0,
+          "bad_frames": 0,
+          "lost_frames": 0
+        }
+      ],
+      "detection_note": "bad_frames = 帧 CRC 错被 host 解析器检出; lost_frames = 序号缺口; 固件 frame CRC 在出队串行化时计算, 故队列内翻转多为静默数据错误, 主要可观测量为固件死亡 (STAT? 不应答) 与死亡前帧统计"
+    }
+  },
+  "total_duration_s": 494.24
+}
