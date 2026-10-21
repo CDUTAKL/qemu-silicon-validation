@@ -23,7 +23,19 @@ import time
 from pathlib import Path
 from typing import IO
 
-DEFAULT_QEMU_BIN = os.environ.get("QSV_QEMU_BIN", "/opt/homebrew/bin/qemu-system-arm")
+def _find_qemu() -> str:
+    """跨平台定位 qemu-system-arm：环境变量 > PATH > macOS Homebrew 默认路径。"""
+    env = os.environ.get("QSV_QEMU_BIN")
+    if env:
+        return env
+    from shutil import which
+    found = which("qemu-system-arm")
+    if found:
+        return found
+    return "/opt/homebrew/bin/qemu-system-arm"
+
+
+DEFAULT_QEMU_BIN = _find_qemu()
 DEFAULT_MACHINE = "stm32vldiscovery"
 
 # QEMU chardev 重定向通告: 兼容 stdout/stderr、Linux pts 与 macOS ttys
