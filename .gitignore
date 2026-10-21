@@ -9,3 +9,4 @@ report/coverage_html/
 report/benchmark_history.jsonl
 report/platform_events.json
 *.sock
+faults/bitflip/bitflip.so
