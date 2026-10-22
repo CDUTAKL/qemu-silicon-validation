@@ -70,7 +70,8 @@ coverage/
 └── posix_build/
     ├── build.sh               # gcc-16 -O0 -g --coverage 双二进制构建
     ├── FreeRTOSConfig.h       # POSIX 版内核配置（区别于 ARM 版）
-    ├── port_posix_macos.c     # POSIX port 的 macOS 修复副本（见下）
+    ├── port_posix_macos.c     # POSIX port 的 macOS 修复副本（见下；仅 Darwin 构建使用，
+                               # Linux 用 deps/ 上游 portable/ThirdParty/GCC/Posix/port.c）
     ├── posix_main.c           # 集成测试驱动（55 项断言，跑真实四任务应用）
     ├── posix_uart_shim.c      # uart.h 的宿主实现：TX 捕获 / RX 注入环形缓冲
     ├── shim_uart.h            # 测试侧控制 API
@@ -88,7 +89,10 @@ coverage/
    用 `mach_vm_round_page()` 向上取整栈底地址；heap_4 的栈块只保证 8 字节对齐，
    在 arm64 macOS（16KB 页）下取整结果可能越过栈顶，栈大小下溢成 ~2^64，
    `pthread_create` 挂死。修复副本 `port_posix_macos.c` 去掉页面对齐、直接按
-   原始边界计算并设 64KB 下限；`deps/` 保持原样未动。
+   原始边界计算并设 64KB 下限；`deps/` 保持原样未动。该副本含 mach/ 头文件
+   等 macOS 专属依赖，`build.sh` 仅在 Darwin 下编译它；Linux（CI）改用上游
+   `port.c` 原版，并补 `-D_GNU_SOURCE`（glibc 在 `-std=c11` 严格模式下不
+   暴露 `PTHREAD_STACK_MIN`/`locale_t` 等声明）。
 3. **macOS secure headers**：`<string.h>` 会把 `memcpy` 等宏化为
    `__builtin___memcpy_chk`，与 `minilib.h` 的声明冲突；测试驱动在包含固件头
    之前 `#undef` 这些宏解决（firmware 源码零改动）。

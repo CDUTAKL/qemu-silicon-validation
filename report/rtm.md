@@ -1,7 +1,7 @@
 # 需求追踪矩阵 (RTM) 报告
 
-生成时间: 2026-10-21 22:23 CST  
-需求基线: `rtm/requirements.yaml`  用例来源: `tests/*.py` (ast 静态扫描)  执行结果: `/Users/xushuyuan/Documents/qemu-silicon-validation/report/junit.xml`
+生成时间: 2026-10-22 10:55 CST  
+需求基线: `rtm/requirements.yaml`  用例来源: `tests/*.py` (ast 静态扫描)  执行结果: `report/junit.xml`
 
 ## 1. 概览统计
 

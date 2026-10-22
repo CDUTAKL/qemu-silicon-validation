@@ -25,6 +25,12 @@ fi
 echo "using compiler: $GCC"
 
 CFLAGS="-O0 -g --coverage -fprofile-abs-path -Wall -Wextra -std=c11"
+if [ "$(uname -s)" != "Darwin" ]; then
+    # glibc hides pthread/locale declarations (PTHREAD_STACK_MIN, locale_t)
+    # from strict -std=c11 unless _GNU_SOURCE is set; harmless on Darwin so
+    # it is added conditionally for the Linux CI build.
+    CFLAGS="$CFLAGS -D_GNU_SOURCE"
+fi
 
 rm -rf "$OUT"
 mkdir -p "$OUT/unit" "$OUT/posix"
@@ -51,10 +57,18 @@ echo "built: $OUT/unit/test_core_logic"
 PINC="-I$COV/posix_build -I$KERNEL/include -I$PORT -I$FW/protocol -I$FW/Core -I$COV"
 FORCE_BOARD="-include $COV/posix_build/shim/board.h"
 
-# NOTE: port_posix_macos.c is a local copy of $PORT/port.c with a macOS
-# stack-size underflow fix (see its header comment); deps/ stays pristine.
+# Port source is platform-dependent: port_posix_macos.c is a local copy of
+# $PORT/port.c with a macOS stack-size underflow fix (see its header comment)
+# but it pulls in mach/ headers and macOS-only types, so it can only build on
+# Darwin; Linux uses the pristine upstream port from deps/ (which compiles
+# cleanly against glibc).
+if [ "$(uname -s)" = "Darwin" ]; then
+    PORT_SRC="$COV/posix_build/port_posix_macos.c"
+else
+    PORT_SRC="$PORT/port.c"
+fi
 KSRC="$KERNEL/tasks.c $KERNEL/queue.c $KERNEL/list.c $KERNEL/timers.c \
-      $KERNEL/portable/MemMang/heap_4.c $COV/posix_build/port_posix_macos.c \
+      $KERNEL/portable/MemMang/heap_4.c $PORT_SRC \
       $PORT/utils/wait_for_event.c"
 FSRC="$FW/protocol/crc16.c $FW/protocol/frame.c \
       $FW/Core/app.c $FW/Core/comm_task.c $FW/Core/diag_task.c \

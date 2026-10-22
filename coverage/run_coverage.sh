@@ -36,7 +36,9 @@ INFO_ALL="$OUT/coverage_all.info"
 INFO_FW="$OUT/coverage_firmware.info"
 rm -f "$INFO_ALL" "$INFO_FW"
 
-LCOV_RC="--rc branch_coverage=1 --gcov-tool $GCOV_TOOL"
+# lcov 2.x removed `--rc branch_coverage=1`; --branch-coverage is the
+# supported spelling (also accepted by lcov 1.x).
+LCOV_RC="--branch-coverage --gcov-tool $GCOV_TOOL"
 lcov --capture --directory "$OUT/unit" --directory "$OUT/posix" \
      --output-file "$INFO_ALL" $LCOV_RC \
      --ignore-errors mismatch,negative,format,empty || {

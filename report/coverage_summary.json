@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-21T14:23:55.258904+00:00",
+  "generated_at": "2026-10-22T02:54:47.800210+00:00",
   "tool": "gcc --coverage (gcov format) + lcov",
   "scope": "firmware/protocol + firmware/Core via FreeRTOS POSIX port on macOS (host build)",
   "targets": {
