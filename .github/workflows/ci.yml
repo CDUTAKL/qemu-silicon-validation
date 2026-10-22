@@ -84,13 +84,19 @@ jobs:
       - name: 覆盖率 GNU 工具链兼容路径（shim）
         # coverage/posix_build/build.sh 与 run_coverage.sh 目前按 macOS Homebrew
         # 路径发现 gcc-*/gcov-*；在 runner 上建立同名符号链接复用系统 gcc/gcov。
+        # 注意 gcc 与 gcov 必须同版本（gcov 数据格式按主版本演进, 跨版本读取
+        # 会被 lcov 2.x 判为 version mismatch）, 故 gcov 优先取版本号配对的
+        # /usr/bin/gcov-$VER, 找不到再兜底 $(command -v gcov)。
         run: |
           GCC_BIN=$(ls /usr/bin/gcc-* 2>/dev/null | grep -E '/gcc-[0-9]+$' | sort -V | tail -1 || true)
           GCC_BIN=${GCC_BIN:-$(command -v gcc)}
           VER=${GCC_BIN##*-}; [ "$VER" = "$GCC_BIN" ] && VER=13
+          GCOV_BIN=$(ls "/usr/bin/gcov-$VER" 2>/dev/null | head -1 || true)
+          GCOV_BIN=${GCOV_BIN:-$(command -v gcov)}
           sudo mkdir -p /opt/homebrew/bin
           sudo ln -sf "$GCC_BIN" "/opt/homebrew/bin/gcc-$VER"
-          sudo ln -sf "$(command -v gcov)" "/opt/homebrew/bin/gcov-$VER"
+          sudo ln -sf "$GCOV_BIN" "/opt/homebrew/bin/gcov-$VER"
+          echo "gcc -> $GCC_BIN, gcov -> $GCOV_BIN (ver $VER)"
           ls -l /opt/homebrew/bin
 
       - name: '[5/6] 覆盖率（gcov，FreeRTOS POSIX port 双轨）'
